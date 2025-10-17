@@ -31,29 +31,31 @@ class Code(db.Model):
 # UTILITIES
 # ───────────────────────────────
 def init_db():
+    """Initialize the SQLite database."""
     with app.app_context():
         db.create_all()
 
 
 def generate_unique_code():
-    """สุ่มเลข 6 หลัก ไม่ซ้ำ"""
+    """Generate a unique 6-digit code."""
     return f"{random.randint(0, 999999):06d}"
 
 
 @app.before_request
 def assign_cookie():
-    """กำหนด client_id ให้แต่ละคนผ่านคุกกี้"""
+    """Assign a unique client_id cookie to each visitor."""
     if request.endpoint == "static":
         return
     if not request.cookies.get("client_id"):
         client_id = uuid.uuid4().hex
         resp = make_response()
-        resp.set_cookie("client_id", client_id, max_age=60 * 60 * 24 * 365)
+        resp.set_cookie("client_id", client_id, max_age=60 * 60 * 24 * 365)  # 1 year
         request._new_cookie_resp = resp
 
 
 @app.after_request
 def attach_cookie(response):
+    """Attach the client_id cookie to the response if newly created."""
     cookie_resp = getattr(request, "_new_cookie_resp", None)
     if cookie_resp is not None:
         for header, value in cookie_resp.headers:
@@ -67,31 +69,37 @@ def attach_cookie(response):
 # ───────────────────────────────
 @app.route("/")
 def index():
-    """หน้าเว็บหลัก แสดง QR ให้สแกน"""
-    # URL ที่ QR จะพาไป
+    """Main page showing a QR code to scan."""
     claim_url = url_for("claim", _external=True)
-    # สร้าง QR code แล้วแปลงเป็น base64
+
+    # Generate QR code for the claim URL
     import io, base64
     img = qrcode.make(claim_url)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
     return render_template("index.html", qr_data=img_b64, claim_url=claim_url)
 
 
 @app.route("/claim")
 def claim():
-    """หน้าเมื่อสแกน QR"""
+    """Page shown after scanning the QR code."""
     client_id = request.cookies.get("client_id")
+    new_cookie = False
+
+    # If the user doesn't have a client_id yet, create one
     if not client_id:
         client_id = uuid.uuid4().hex
+        new_cookie = True
 
-    # ถ้ามีอยู่แล้ว → ใช้เลขเดิม
+    # Check if the user already has a code
     existing = Code.query.filter_by(client_id=client_id).first()
+
     if existing:
         code = existing.code
     else:
-        # สุ่มเลขใหม่ ไม่ให้ซ้ำ
+        # Generate a new unique code if not exists
         for _ in range(20):
             code = generate_unique_code()
             record = Code(client_id=client_id, code=code)
@@ -103,11 +111,18 @@ def claim():
                 db.session.rollback()
                 continue
 
-    return render_template("claim.html", code=code)
+    # Prepare the response with the code
+    resp = make_response(render_template("claim.html", code=code))
+
+    # If the client_id was newly created, set the cookie
+    if new_cookie:
+        resp.set_cookie("client_id", client_id, max_age=60 * 60 * 24 * 365)
+
+    return resp
 
 
 # ───────────────────────────────
-# MAIN
+# MAIN ENTRY POINT
 # ───────────────────────────────
 if __name__ == "__main__":
     init_db()
