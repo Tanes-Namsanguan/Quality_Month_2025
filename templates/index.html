@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR สำหรับสแกน</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 40px; }
+    h1 { font-size: 28px; }
+    img { margin-top: 20px; width: 250px; height: 250px; }
+    .url { margin-top: 20px; color: gray; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>สแกน QR นี้เพื่อรับเลขของคุณ</h1>
+  <img src="data:image/png;base64,{{ qr_data }}" alt="QR Code" />
+  <div class="url">หรือเปิดลิงก์: <br>{{ claim_url }}</div>
+</body>
+</html>
