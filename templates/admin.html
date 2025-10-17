@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: sans-serif; margin: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #007bff; color: white; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-primary { background: #007bff; color: #fff; }
+    .btn-green { background: #28a745; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>รายชื่อทั้งหมด</h1>
+  <button class="btn btn-green" onclick="drawWinner()">🎉 จับรางวัล</button>
+  <p id="winner"></p>
+  <table>
+    <tr><th>ID</th><th>Code</th><th>Created At</th></tr>
+    {% for c in codes %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.code }}</td>
+      <td>{{ c.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <script>
+    async function drawWinner() {
+      const res = await fetch("/api/random_winner");
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById("winner").innerHTML =
+          "<b>ผู้โชคดีคือหมายเลข:</b> <span style='font-size:2em; color:red;'>" + data.code + "</span>";
+      } else {
+        document.getElementById("winner").textContent = "ไม่มีข้อมูล";
+      }
+    }
+  </script>
+</body>
+</html>
