@@ -32,14 +32,22 @@
 
   <script>
     async function drawWinner() {
-      const res = await fetch("/api/random_winner");
+      const password = prompt("Enter admin password to draw a winner:");
+      if (!password) return;
+      const res = await fetch("/api/random_winner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password })
+      });
       const data = await res.json();
       if (data.ok) {
         document.getElementById("winner").innerHTML =
           "🎉 <b>The winner is:</b> <span style='font-size:2em; color:red;'>" + data.code + "</span>";
         alert("🎉 The winner is code " + data.code + "!");
+      } else if (data.error === "unauthorized") {
+        alert("❌ Incorrect password.");
       } else {
-        document.getElementById("winner").textContent = "No data available to draw a winner.";
+        alert("No data available to draw a winner.");
       }
     }
   </script>

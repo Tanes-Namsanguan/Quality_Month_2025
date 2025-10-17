@@ -43,14 +43,19 @@
     }
 
     async function resetData() {
-      if (!confirm("Are you sure you want to delete all data?")) return;
-      const res = await fetch('/api/reset', { method: 'POST' });
+      const password = prompt("Enter admin password to reset all data:");
+      if (!password) return;
+      const res = await fetch('/api/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
       const data = await res.json();
       if (data.ok) {
         alert("✅ All data has been cleared!");
         fetchCount();
       } else {
-        alert("❌ Reset failed.");
+        alert("❌ Incorrect password or reset failed.");
       }
     }
 
