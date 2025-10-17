@@ -3,19 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QR Code Scanner</title>
+  <title>QR Code Event</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 40px; }
     h1 { font-size: 28px; }
     img { margin-top: 20px; width: 250px; height: 250px; }
     .url { margin-top: 20px; color: gray; font-size: 14px; }
     #counter { font-size: 32px; font-weight: bold; margin-top: 10px; }
-    #reset-btn {
-      background-color: #e74c3c; color: white; border: none;
-      border-radius: 8px; padding: 10px 20px; margin-top: 30px;
-      cursor: pointer; font-size: 16px;
-    }
-    #reset-btn:hover { background-color: #c0392b; }
+    .btn { border: none; border-radius: 8px; padding: 10px 20px; margin: 10px; cursor: pointer; font-size: 16px; }
+    .btn-blue { background-color: #3498db; color: white; }
+    .btn-red { background-color: #e74c3c; color: white; }
+    .btn-blue:hover { background-color: #2980b9; }
+    .btn-red:hover { background-color: #c0392b; }
   </style>
 </head>
 <body>
@@ -27,36 +26,36 @@
   <h2>Total users who received a code:</h2>
   <div id="counter">Loading...</div>
 
-  <button id="reset-btn" onclick="resetData()">Reset All Data</button>
+  <div style="margin-top:30px;">
+    <button class="btn btn-blue" onclick="location.href='/admin'">View All Data</button>
+    <button class="btn btn-red" onclick="resetData()">Reset All Data</button>
+  </div>
 
   <script>
     async function fetchCount() {
-      const res = await fetch('/count');
-      const data = await res.json();
-      document.getElementById('counter').textContent = data.total;
+      try {
+        const res = await fetch('/api/total');
+        const data = await res.json();
+        document.getElementById('counter').textContent = data.total;
+      } catch {
+        document.getElementById('counter').textContent = "Error";
+      }
     }
 
     async function resetData() {
-      const password = prompt("Enter admin password to reset all data:");
-      if (!password) return;
-
-      const res = await fetch('/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-
+      if (!confirm("Are you sure you want to delete all data?")) return;
+      const res = await fetch('/api/reset', { method: 'POST' });
       const data = await res.json();
-      if (res.ok && data.status === "ok") {
-        alert("✅ All data has been reset.");
+      if (data.ok) {
+        alert("✅ All data has been cleared!");
         fetchCount();
       } else {
-        alert("❌ " + (data.message || "Incorrect password."));
+        alert("❌ Reset failed.");
       }
     }
 
     fetchCount();
-    setInterval(fetchCount, 5000);
+    setInterval(fetchCount, 5000); // Update every 5 seconds
   </script>
 </body>
 </html>

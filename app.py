@@ -13,8 +13,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
+
 # ───────────────────────────────
-# MODEL
+# DATABASE MODEL
 # ───────────────────────────────
 class Code(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -22,12 +23,16 @@ class Code(db.Model):
     code = db.Column(db.String(6), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# ───────────────────────────────
+# UTILITIES
+# ───────────────────────────────
 def init_db():
     with app.app_context():
         db.create_all()
 
 def generate_unique_code():
-    return f"{random.randint(0,999999):06d}"
+    return f"{random.randint(0, 999999):06d}"
 
 @app.before_request
 def ensure_cookie():
@@ -48,6 +53,7 @@ def attach_cookie(response):
                 response.headers.add(header, value)
     return response
 
+
 # ───────────────────────────────
 # ROUTES
 # ───────────────────────────────
@@ -61,6 +67,7 @@ def index():
     img_b64 = base64.b64encode(buf.getvalue()).decode()
     total = Code.query.count()
     return render_template("index.html", qr_data=img_b64, claim_url=claim_url, total=total)
+
 
 @app.route("/claim")
 def claim():
@@ -81,29 +88,41 @@ def claim():
                 continue
     return render_template("claim.html", code=code)
 
+
 @app.route("/api/total")
 def api_total():
+    """Return total number of users who received a code"""
     return jsonify({"total": Code.query.count()})
 
-@app.route("/admin")
-def admin():
-    codes = Code.query.order_by(Code.created_at.desc()).all()
-    return render_template("admin.html", codes=codes)
 
 @app.route("/api/reset", methods=["POST"])
-def reset():
+def reset_data():
+    """Delete all data"""
     db.session.query(Code).delete()
     db.session.commit()
     return jsonify({"ok": True})
 
+
+@app.route("/admin")
+def admin_page():
+    """Admin page showing all codes"""
+    codes = Code.query.order_by(Code.created_at.desc()).all()
+    return render_template("admin.html", codes=codes)
+
+
 @app.route("/api/random_winner")
 def random_winner():
+    """Pick a random winner"""
     codes = Code.query.all()
     if not codes:
         return jsonify({"ok": False, "error": "no_data"})
     winner = random.choice(codes)
     return jsonify({"ok": True, "code": winner.code})
 
+
+# ───────────────────────────────
+# MAIN ENTRY
+# ───────────────────────────────
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)

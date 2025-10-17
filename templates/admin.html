@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Panel</title>
   <style>
-    body { font-family: sans-serif; margin: 30px; }
+    body { font-family: sans-serif; margin: 30px; text-align:center; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #007bff; color: white; }
     .btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; }
-    .btn-primary { background: #007bff; color: #fff; }
-    .btn-green { background: #28a745; color: #fff; }
+    .btn-green { background: #28a745; color: #fff; margin-bottom: 20px; }
+    #winner { margin-top: 20px; font-size: 1.5em; color: #c0392b; font-weight:bold; }
   </style>
 </head>
 <body>
-  <h1>รายชื่อทั้งหมด</h1>
-  <button class="btn btn-green" onclick="drawWinner()">🎉 จับรางวัล</button>
-  <p id="winner"></p>
+  <h1>All Registered Codes</h1>
+  <button class="btn btn-green" onclick="drawWinner()">🎉 Draw a Winner</button>
+  <div id="winner"></div>
+
   <table>
     <tr><th>ID</th><th>Code</th><th>Created At</th></tr>
     {% for c in codes %}
@@ -28,15 +29,17 @@
     </tr>
     {% endfor %}
   </table>
+
   <script>
     async function drawWinner() {
       const res = await fetch("/api/random_winner");
       const data = await res.json();
       if (data.ok) {
         document.getElementById("winner").innerHTML =
-          "<b>ผู้โชคดีคือหมายเลข:</b> <span style='font-size:2em; color:red;'>" + data.code + "</span>";
+          "🎉 <b>The winner is:</b> <span style='font-size:2em; color:red;'>" + data.code + "</span>";
+        alert("🎉 The winner is code " + data.code + "!");
       } else {
-        document.getElementById("winner").textContent = "ไม่มีข้อมูล";
+        document.getElementById("winner").textContent = "No data available to draw a winner.";
       }
     }
   </script>
