@@ -1,19 +1,62 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QR สำหรับสแกน</title>
+  <title>QR Code Scanner</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 40px; }
     h1 { font-size: 28px; }
     img { margin-top: 20px; width: 250px; height: 250px; }
     .url { margin-top: 20px; color: gray; font-size: 14px; }
+    #counter { font-size: 32px; font-weight: bold; margin-top: 10px; }
+    #reset-btn {
+      background-color: #e74c3c; color: white; border: none;
+      border-radius: 8px; padding: 10px 20px; margin-top: 30px;
+      cursor: pointer; font-size: 16px;
+    }
+    #reset-btn:hover { background-color: #c0392b; }
   </style>
 </head>
 <body>
-  <h1>สแกน QR นี้เพื่อรับเลขของคุณ</h1>
+  <h1>Scan this QR to get your code</h1>
   <img src="data:image/png;base64,{{ qr_data }}" alt="QR Code" />
-  <div class="url">หรือเปิดลิงก์: <br>{{ claim_url }}</div>
+  <div class="url">Or open this link:<br>{{ claim_url }}</div>
+
+  <hr style="margin: 40px 0;">
+  <h2>Total users who received a code:</h2>
+  <div id="counter">Loading...</div>
+
+  <button id="reset-btn" onclick="resetData()">Reset All Data</button>
+
+  <script>
+    async function fetchCount() {
+      const res = await fetch('/count');
+      const data = await res.json();
+      document.getElementById('counter').textContent = data.total;
+    }
+
+    async function resetData() {
+      const password = prompt("Enter admin password to reset all data:");
+      if (!password) return;
+
+      const res = await fetch('/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === "ok") {
+        alert("✅ All data has been reset.");
+        fetchCount();
+      } else {
+        alert("❌ " + (data.message || "Incorrect password."));
+      }
+    }
+
+    fetchCount();
+    setInterval(fetchCount, 5000);
+  </script>
 </body>
 </html>

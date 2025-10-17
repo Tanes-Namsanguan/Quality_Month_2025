@@ -120,6 +120,23 @@ def claim():
 
     return resp
 
+@app.route("/reset", methods=["POST"])
+def reset():
+    """Delete all data from the database (admin only with password)."""
+    data = request.get_json()
+    password = data.get("password") if data else None
+
+    if password != "quality_month_2025":
+        return jsonify({"status": "error", "message": "Unauthorized: incorrect password."}), 403
+
+    try:
+        db.session.query(Code).delete()
+        db.session.commit()
+        return jsonify({"status": "ok", "message": "All data cleared."})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 # ───────────────────────────────
 # MAIN ENTRY POINT
