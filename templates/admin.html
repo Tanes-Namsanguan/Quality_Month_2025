@@ -170,13 +170,13 @@
       position: relative;
     }
 
-    @keyframes slideIn {
+    @keyframes slideInRight {
       from {
-        transform: scale(0.5);
+        transform: translateX(100%);
         opacity: 0;
       }
       to {
-        transform: scale(1);
+        transform: translateX(0);
         opacity: 1;
       }
     }
@@ -265,6 +265,122 @@
       box-shadow: 0 4px 24px rgba(255, 255, 255, 0.2);
     }
 
+    /* Password Modal */
+    .password-modal {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+
+    .password-content {
+      background: rgba(10, 14, 26, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(0, 212, 255, 0.4);
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    .password-title {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #00d4ff;
+      margin-bottom: 16px;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.95em;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .password-input:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .password-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .password-btn {
+      padding: 8px 16px;
+      font-size: 0.9em;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .password-btn.confirm {
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      color: #0a0e1a;
+    }
+
+    .password-btn.confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+    }
+
+    .password-btn.cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .password-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* YouTube Play Button */
+    .youtube-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(0, 212, 255, 0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .youtube-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 32px rgba(0, 212, 255, 0.3);
+    }
+
+    .youtube-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+      margin-left: 3px;
+    }
+
     @media (max-width: 768px) {
       h1 {
         font-size: 2em;
@@ -325,6 +441,25 @@
     </div>
   </div>
 
+  <!-- Password Modal -->
+  <div class="password-modal" id="password-modal">
+    <div class="password-content">
+      <div class="password-title">🔐 Enter Admin Password</div>
+      <input type="password" id="password-input" class="password-input" placeholder="Enter password..." />
+      <div class="password-buttons">
+        <button class="password-btn confirm" onclick="submitPassword()">Confirm</button>
+        <button class="password-btn cancel" onclick="closePasswordModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube Play Button -->
+  <button class="youtube-btn" onclick="toggleMusic()" title="Play/Pause Music">
+    <svg viewBox="0 0 24 24" id="play-icon">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+  </button>
+
   <!-- Winner Modal -->
   <div class="winner-modal" id="winner-modal">
     <div class="winner-content">
@@ -337,7 +472,7 @@
     </div>
   </div>
 
-<iframe width="0" height="0" src="https://www.youtube-nocookie.com/embed/Ha_5VPWR4Fg?autoplay=1&loop=1&playlist=Ha_5VPWR4Fg&mute=0&controls=0&start=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" style="display:none;"></iframe>
+<iframe width="0" height="0" src="https://www.youtube-nocookie.com/embed/Ha_5VPWR4Fg?autoplay=1&loop=1&playlist=Ha_5VPWR4Fg&mute=0&controls=0&start=1&enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" style="display:none;" id="youtube-iframe"></iframe>
 
   <script>
     // Matrix rain effect
@@ -429,8 +564,45 @@
       }, 50);
     }
 
+    let passwordCallback = null;
+
+    function showPasswordModal() {
+      return new Promise((resolve) => {
+        passwordCallback = resolve;
+        document.getElementById('password-modal').style.display = 'flex';
+        document.getElementById('password-input').value = '';
+        document.getElementById('password-input').focus();
+      });
+    }
+
+    function closePasswordModal() {
+      document.getElementById('password-modal').style.display = 'none';
+      if (passwordCallback) {
+        passwordCallback(null);
+        passwordCallback = null;
+      }
+    }
+
+    function submitPassword() {
+      const password = document.getElementById('password-input').value;
+      document.getElementById('password-modal').style.display = 'none';
+      if (passwordCallback) {
+        passwordCallback(password);
+        passwordCallback = null;
+      }
+    }
+
+    // Handle Enter key in password input
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('password-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          submitPassword();
+        }
+      });
+    });
+
     async function drawWinner() {
-      const password = prompt("Enter admin password to draw a winner:");
+      const password = await showPasswordModal();
       if (!password) return;
       
       try {
@@ -464,6 +636,25 @@
     function closeModal() {
       document.getElementById('winner-modal').style.display = 'none';
       document.getElementById('winner-code').classList.remove('rolling', 'final');
+    }
+
+    // YouTube control
+    let isPlaying = true;
+    function toggleMusic() {
+      const iframe = document.getElementById('youtube-iframe');
+      const icon = document.getElementById('play-icon');
+      
+      if (isPlaying) {
+        // Pause - show play icon
+        iframe.src = iframe.src.replace('autoplay=1', 'autoplay=0');
+        icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        isPlaying = false;
+      } else {
+        // Play - show pause icon
+        iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1');
+        icon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+        isPlaying = true;
+      }
     }
   </script>
 </body>
