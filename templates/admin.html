@@ -212,11 +212,11 @@
     }
 
     .winner-code.rolling {
-      animation: matrixRoll 0.1s linear infinite;
+      animation: matrixRoll 100s linear infinite;
     }
 
     .winner-code.final {
-      animation: finalReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: finalReveal 5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes matrixRoll {
@@ -337,6 +337,8 @@
     </div>
   </div>
 
+<iframe width="0" height="0" src="https://www.youtube-nocookie.com/embed/Ha_5VPWR4Fg?autoplay=1&loop=1&playlist=Ha_5VPWR4Fg&mute=0&controls=0&start=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" style="display:none;"></iframe>
+
   <script>
     // Matrix rain effect
     const canvas = document.getElementById('matrix-canvas');
@@ -446,8 +448,8 @@
           // Show modal
           document.getElementById('winner-modal').style.display = 'flex';
           
-          // Start rolling animation for 3 seconds
-          rollCode(3000, data.code);
+          // Start rolling animation for 8 seconds
+          rollCode(8000, data.code);
         } else if (data.error === "unauthorized") {
           alert("❌ Incorrect password.");
         } else {
